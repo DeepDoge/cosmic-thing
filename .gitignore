@@ -1,0 +1,74 @@
+# visual studio-specific
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# build output
+bin/
+obj/
+out/
+*.exe
+*.dll
+*.pdb
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+*.nupkg
+*.snupkg
+
+# .net-related
+project.lock.json
+project.assets.json
+*.nuspec
+*.cache
+*.log
+*.db
+artifacts/
+
+# dependencies
+packages/
+.nuget/
+*.nupkg
+packages.config
+global.json
+
+# resharper / rider
+.idea/
+*.sln.iml
+
+# rider-specific
+.idea/
+*.sln.iml
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+**/.idea/gradle.xml
+**/.idea/dictionaries
+**/.idea/libraries
+
+# user secrets (asp.net core)
+secrets.json
+
+# coverage & testing
+*.coverage
+*.coveragexml
+*.codecoverage
+TestResults/
+Coverage/
+
+# config / env files
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Test.json
+.env
+.env.local
+.env.*.local
+
+# others
+*.bak
+*.swp
+*.swo
+*.tmp
+*.log
