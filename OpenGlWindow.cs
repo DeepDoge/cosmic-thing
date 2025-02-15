@@ -1,3 +1,4 @@
+using System.Drawing;
 using Friflo.Engine.ECS;
 using Friflo.Engine.ECS.Systems;
 using OpenTK.Graphics.OpenGL4;
@@ -29,15 +30,15 @@ public class OpenGlWindow() : GameWindow(GameWindowSettings.Default, new NativeW
         _world = new EntityStore();
         _camera = new Camera(new Vector3(0, 0, 3));
         
-        _world.CreateEntity(new Position(), Tags.Get<CubeTag>());
-        _world.CreateEntity(new Position(1, 0, 0), Tags.Get<CubeTag>());
-        _world.CreateEntity(new Position(-1, 0, 0), Tags.Get<CubeTag>());
+        _world.CreateEntity(new Position(), new CubeColor { Value = { X = 1} }, Tags.Get<CubeTag>());
+        _world.CreateEntity(new Position(1.25f, 0, 0), new CubeColor { Value = { Y = 1 } }, Tags.Get<CubeTag>());
+        _world.CreateEntity(new Position(-1.25f, 0, 0), new CubeColor { Value = { Z = 1 } }, Tags.Get<CubeTag>());
 
         _systemRoot = new SystemRoot(_world)
         {
             new CubeRenderer
             {
-                Camera = _camera
+                MainCamera = _camera
             }
         };
     }
