@@ -1,13 +1,14 @@
-﻿using Friflo.Engine.ECS;
-using OpenTK.Windowing.Desktop;
-
-namespace cosmic_thing;
+﻿namespace cosmic_thing;
 
 public static class Program
 {
+    public static readonly Game Game = Game.Default();
+    public static readonly OpenGlWindow Window = new() { Game = Game };
+
     public static void Main()
     {
-        using var window = new OpenGlWindow();
-        window.Run();
+        Window.Run();
+        Game.Dispose();
+        Window.Dispose();
     }
 }

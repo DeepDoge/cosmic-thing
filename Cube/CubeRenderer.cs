@@ -1,19 +1,16 @@
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using cosmic_thing.Camera;
 using Friflo.Engine.ECS;
 using Friflo.Engine.ECS.Systems;
 using OpenTK.Graphics.OpenGL4;
-using System.Numerics;
+using OpenTK.Mathematics;
+using Vector3 = System.Numerics.Vector3;
 
-namespace cosmic_thing;
+namespace cosmic_thing.Cube;
 
-public struct CubeTag : ITag;
-
-public struct CubeColor : IComponent
-{
-    public Vector3 Value;
-}
-
-public class CubeRenderer : QuerySystem<Position, CubeColor>
+public class CubeRenderer : QuerySystem<Position, ColorRgb>
 {
     private static readonly Vector3[] CubeVertices =
     [
@@ -37,24 +34,30 @@ public class CubeRenderer : QuerySystem<Position, CubeColor>
         0, 1, 5, 5, 4, 0 // Bottom face
     ];
 
-    private int _vertexArrayObject;
-    private int _vertexBufferObject;
-    private int _instanceOffsetBufferObject;
-    private int _instanceColorBufferObject;
-    private int _shaderProgramId;
     private int _drawCommandBuffer;
+    private int _instanceColorBufferObject;
 
-    public required Camera MainCamera;
+    private int _instanceCountCache = -1;
+    private int _instanceOffsetBufferObject;
+    private int _shaderProgramId;
 
-    public CubeRenderer() => Filter.AnyTags(Tags.Get<CubeTag>());
+    private int _vertexArrayObject;
+
+    public CubeRenderer()
+    {
+        Filter.AnyTags(Tags.Get<CubeTag>());
+    }
+
 
     protected override void OnAddStore(EntityStore store)
     {
+        base.OnAddStore(store);
+
         // Generate a Vertex Array Object (VAO) to store the vertex attribute configuration.
         _vertexArrayObject = GL.GenVertexArray();
 
         // Generate the buffer that will hold the cube's vertex positions.
-        _vertexBufferObject = GL.GenBuffer();
+        var vertexBufferObject = GL.GenBuffer();
 
         // Generate the buffer that will hold per-instance data (for example, position offsets).
         _instanceOffsetBufferObject = GL.GenBuffer();
@@ -83,7 +86,7 @@ public class CubeRenderer : QuerySystem<Position, CubeColor>
 
         // --- Setup the Vertex Buffer ---
         // Bind the vertex buffer to the ARRAY_BUFFER target.
-        GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
         // Upload the cube vertices data into the vertex buffer.
         GL.BufferData(
             BufferTarget.ArrayBuffer,
@@ -129,11 +132,11 @@ public class CubeRenderer : QuerySystem<Position, CubeColor>
 
             GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, sizeof(float) * 3, 0);
             GL.EnableVertexAttribArray(2);
-            GL.VertexAttribDivisor(2, 1);   
+            GL.VertexAttribDivisor(2, 1);
         }
-        
+
         ReAllocateInstanceBuffer();
-        
+
 
         // --- Setup the Instance Buffer ---
         // This function ensures the instance buffer is allocated with the correct size.
@@ -142,8 +145,6 @@ public class CubeRenderer : QuerySystem<Position, CubeColor>
         // Compile the vertex and fragment shaders, link them into a shader program, and store its ID.
         _shaderProgramId = CompileAndLinkShaders();
     }
-
-    private int _instanceCountCache = -1;
 
     private void ReAllocateInstanceBuffer()
     {
@@ -162,8 +163,8 @@ public class CubeRenderer : QuerySystem<Position, CubeColor>
             GL.BindBuffer(BufferTarget.ArrayBuffer, _instanceColorBufferObject);
             GL.BufferData(BufferTarget.ArrayBuffer, instanceColorSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
         }
-     
-        
+
+
         var drawCommand = new DrawElementsIndirectCommand
         {
             Count = (uint)CubeIndices.Length,
@@ -181,19 +182,23 @@ public class CubeRenderer : QuerySystem<Position, CubeColor>
     protected override void OnUpdate()
     {
         ReAllocateInstanceBuffer();
-        
+
+        ref var cameraData = ref Program.Game.MainCameraEntity.GetComponent<CameraData>();
+        var projection = Unsafe.BitCast<Matrix4x4, Matrix4>(cameraData.Projection);
+        var view = Unsafe.BitCast<Matrix4x4, Matrix4>(cameraData.View);
+
         nint colorBufferOffset = 0;
         nint positionBufferOffset = 0;
         foreach (var entityChunk in Query.Chunks)
         {
             entityChunk.Deconstruct(out var position, out var color, out _);
-            
+
             GL.BindBuffer(BufferTarget.ArrayBuffer, _instanceOffsetBufferObject);
             var positionBufferChunkSize = position.Length * sizeof(float) * 3;
             GL.BufferSubData(BufferTarget.ArrayBuffer, positionBufferOffset, positionBufferChunkSize,
                 ref MemoryMarshal.GetReference(position.Span));
             positionBufferOffset += positionBufferChunkSize;
-            
+
             GL.BindBuffer(BufferTarget.ArrayBuffer, _instanceColorBufferObject);
             var colorBufferChunkSize = color.Length * sizeof(float) * 3;
             GL.BufferSubData(BufferTarget.ArrayBuffer, colorBufferOffset, colorBufferChunkSize,
@@ -207,8 +212,8 @@ public class CubeRenderer : QuerySystem<Position, CubeColor>
 
         var projectionMatrixLocation = GL.GetUniformLocation(_shaderProgramId, "projection");
         var viewMatrixLocation = GL.GetUniformLocation(_shaderProgramId, "view");
-        GL.UniformMatrix4(projectionMatrixLocation, false, ref MainCamera.Projection);
-        GL.UniformMatrix4(viewMatrixLocation, false, ref MainCamera.View);
+        GL.UniformMatrix4(projectionMatrixLocation, false, ref projection);
+        GL.UniformMatrix4(viewMatrixLocation, false, ref view);
 
         GL.BindBuffer(BufferTarget.DrawIndirectBuffer, _drawCommandBuffer);
         GL.DrawElementsIndirect(PrimitiveType.Triangles, DrawElementsType.UnsignedInt, IntPtr.Zero);
