@@ -5,10 +5,11 @@ namespace cosmic_thing.Graphics;
 
 public readonly struct InstanceDataBuffer<T> where T : struct
 {
+    private static readonly int Stride = Marshal.SizeOf<T>();
+
     private readonly int _attributeLocation;
     private readonly int _bufferId;
     private readonly int _componentCount;
-    private readonly int _stride = Marshal.SizeOf<T>();
     private readonly BufferTarget _target;
 
     public InstanceDataBuffer(int attributeLocation, int componentCount, BufferTarget target = BufferTarget.ArrayBuffer)
@@ -27,19 +28,19 @@ public readonly struct InstanceDataBuffer<T> where T : struct
     public void Resize(int length)
     {
         GL.BindBuffer(_target, _bufferId);
-        GL.BufferData(_target, length * _stride, nint.Zero, BufferUsageHint.DynamicDraw);
+        GL.BufferData(_target, length * Stride, nint.Zero, BufferUsageHint.DynamicDraw);
     }
 
     public void UpdateDataAndResize(ref T data, int length)
     {
         GL.BindBuffer(_target, _bufferId);
-        GL.BufferData(_target, length * _stride, ref data, BufferUsageHint.DynamicDraw);
+        GL.BufferData(_target, length * Stride, ref data, BufferUsageHint.DynamicDraw);
     }
 
     public void UpdateData(ref T data, int length, int indexOffset = 0)
     {
         GL.BindBuffer(_target, _bufferId);
-        GL.BufferSubData(_target, (nint)indexOffset * _stride, length * _stride, ref data);
+        GL.BufferSubData(_target, (nint)indexOffset * Stride, length * Stride, ref data);
     }
 
     public void Bind()

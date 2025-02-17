@@ -5,7 +5,7 @@ namespace cosmic_thing.Graphics;
 
 public readonly struct Mesh
 {
-    public readonly int IndicesLength;
+    public readonly uint IndicesLength;
     private readonly int _vao;
 
     public Mesh(Vector3[] vertices, uint[] indices)
@@ -14,7 +14,7 @@ public readonly struct Mesh
         _vao = GL.GenVertexArray();
         var vbo = GL.GenBuffer();
         var ebo = GL.GenBuffer();
-        IndicesLength = indices.Length;
+        IndicesLength = (uint)indices.Length;
 
         GL.BindVertexArray(_vao);
 

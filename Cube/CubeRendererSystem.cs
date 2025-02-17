@@ -3,14 +3,36 @@ using cosmic_thing.Camera;
 using cosmic_thing.Graphics;
 using Friflo.Engine.ECS;
 using Friflo.Engine.ECS.Systems;
-using OpenTK.Graphics.OpenGL4;
 using Vector3 = System.Numerics.Vector3;
 
 namespace cosmic_thing.Cube;
 
-// Later send the matrix
 public class CubeRendererSystem : QuerySystem<Position, ColorRgb>
 {
+    private const string VertexSource = """
+                                        #version 450 core
+                                        layout(location = 0) in vec3 vertexPosition;
+                                        layout(location = 1) in vec3 instanceOffset;
+                                        layout(location = 2) in vec3 instanceColor;
+                                        uniform mat4 projection;
+                                        uniform mat4 view;
+                                        out vec3 color;
+                                        void main() {
+                                            gl_Position = projection * view * vec4(vertexPosition + instanceOffset, 1.0);
+                                            color = instanceColor;
+                                        }
+                                        """;
+
+    private const string FragmentSource = """
+                                          #version 450 core
+                                          out vec4 fragmentColor;
+                                          in vec3 color;
+                                          void main() {
+                                              fragmentColor = vec4(color, 1.0);
+                                          }
+                                          """;
+
+    private readonly DrawElementsIndirectBuffer _drawBuffer = new();
     private readonly InstanceDataBuffer<ColorRgb> _instanceColors = new(2, 3);
     private readonly InstanceDataBuffer<Position> _instanceOffsets = new(1, 3);
 
@@ -37,26 +59,8 @@ public class CubeRendererSystem : QuerySystem<Position, ColorRgb>
 
     private int _instanceCountCache;
 
-    private ShaderProgram _shader = new("""
-                                        #version 450 core
-                                        layout(location = 0) in vec3 vertexPosition;
-                                        layout(location = 1) in vec3 instanceOffset;
-                                        layout(location = 2) in vec3 instanceColor;
-                                        uniform mat4 projection;
-                                        uniform mat4 view;
-                                        out vec3 color;
-                                        void main() {
-                                            gl_Position = projection * view * vec4(vertexPosition + instanceOffset, 1.0);
-                                            color = instanceColor;
-                                        }
-                                        """, """
-                                             #version 450 core
-                                             out vec4 fragmentColor;
-                                             in vec3 color;
-                                             void main() {
-                                                 fragmentColor = vec4(color, 1.0);
-                                             }
-                                             """);
+
+    private ShaderProgram _shader = new(VertexSource, FragmentSource);
 
     private void ResizeBuffersIfNeeded()
     {
@@ -66,6 +70,8 @@ public class CubeRendererSystem : QuerySystem<Position, ColorRgb>
 
         _instanceOffsets.Resize(instanceCount);
         _instanceColors.Resize(instanceCount);
+
+        _drawBuffer.Update(_mesh.IndicesLength, (uint)instanceCount, 0, 0, 0);
     }
 
     protected override void OnUpdate()
@@ -76,15 +82,13 @@ public class CubeRendererSystem : QuerySystem<Position, ColorRgb>
 
         var colorOffset = 0;
         var positionOffset = 0;
-        foreach (var entityChunk in Query.Chunks)
+        foreach (var (positionChunk, colorChunk, entities) in Query.Chunks)
         {
-            entityChunk.Deconstruct(out var position, out var color, out _);
-
-            _instanceOffsets.UpdateData(ref MemoryMarshal.GetReference(position.Span), position.Length,
+            _instanceOffsets.UpdateData(ref MemoryMarshal.GetReference(positionChunk.Span), positionChunk.Length,
                 positionOffset);
-            positionOffset += position.Length;
-            _instanceColors.UpdateData(ref MemoryMarshal.GetReference(color.Span), color.Length, colorOffset);
-            colorOffset += color.Length;
+            positionOffset += positionChunk.Length;
+            _instanceColors.UpdateData(ref MemoryMarshal.GetReference(colorChunk.Span), colorChunk.Length, colorOffset);
+            colorOffset += colorChunk.Length;
         }
 
         _shader.Use();
@@ -95,8 +99,6 @@ public class CubeRendererSystem : QuerySystem<Position, ColorRgb>
         _instanceOffsets.Bind();
         _instanceColors.Bind();
 
-        GL.DrawElementsInstanced(PrimitiveType.Triangles, _mesh.IndicesLength, DrawElementsType.UnsignedInt,
-            IntPtr.Zero,
-            _instanceCountCache);
+        _drawBuffer.Draw();
     }
 }

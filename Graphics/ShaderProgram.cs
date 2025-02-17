@@ -7,21 +7,21 @@ namespace cosmic_thing.Graphics;
 
 public struct ShaderProgram : IDisposable
 {
-    public int Id { get; private set; }
+    private int _program;
 
     public ShaderProgram(string vertexSource, string fragmentSource)
     {
-        Id = GL.CreateProgram();
+        _program = GL.CreateProgram();
 
         var vertexShader = CompileShader(vertexSource, ShaderType.VertexShader);
         var fragmentShader = CompileShader(fragmentSource, ShaderType.FragmentShader);
 
-        GL.AttachShader(Id, vertexShader);
-        GL.AttachShader(Id, fragmentShader);
-        GL.LinkProgram(Id);
+        GL.AttachShader(_program, vertexShader);
+        GL.AttachShader(_program, fragmentShader);
+        GL.LinkProgram(_program);
 
-        GL.DetachShader(Id, vertexShader);
-        GL.DetachShader(Id, fragmentShader);
+        GL.DetachShader(_program, vertexShader);
+        GL.DetachShader(_program, fragmentShader);
         GL.DeleteShader(vertexShader);
         GL.DeleteShader(fragmentShader);
     }
@@ -40,27 +40,27 @@ public struct ShaderProgram : IDisposable
 
     private void EnsureNotDisposed()
     {
-        if (Id == 0) throw new ObjectDisposedException(nameof(ShaderProgram), "Shader program has been deleted.");
+        if (_program == 0) throw new ObjectDisposedException(nameof(ShaderProgram), "Shader program has been deleted.");
     }
 
     public void Use()
     {
         EnsureNotDisposed();
-        GL.UseProgram(Id);
+        GL.UseProgram(_program);
     }
 
     public void SetUniformMatrix4X4(string name, ref Matrix4x4 matrix)
     {
         EnsureNotDisposed();
         ref var matrix4 = ref Unsafe.As<Matrix4x4, Matrix4>(ref matrix);
-        var location = GL.GetUniformLocation(Id, name);
+        var location = GL.GetUniformLocation(_program, name);
         GL.UniformMatrix4(location, false, ref matrix4);
     }
 
     public void Dispose()
     {
-        if (Id == 0) return;
-        GL.DeleteProgram(Id);
-        Id = 0;
+        if (_program == 0) return;
+        GL.DeleteProgram(_program);
+        _program = 0;
     }
 }
