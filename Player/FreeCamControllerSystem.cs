@@ -5,30 +5,30 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace cosmic_thing.Player;
 
-public class PlayerFreeCamControllerSystem : QuerySystem<Position, Rotation>
+public class FreeCamControllerSystem : QuerySystem<Position, Rotation>
 {
-    private float pitchAngle; // store pitch separately
+    private float _pitchAngle; // store pitch separately
 
-    public PlayerFreeCamControllerSystem()
+    public FreeCamControllerSystem()
     {
-        Filter.AllTags(Tags.Get<PlayerTag>());
+        Filter.AllTags(Tags.Get<FreeCamTag>());
     }
 
     protected override void OnUpdate()
     {
         const float moveSpeed = 5f;
         const float sensitivity = 0.1f;
-        var deltaTime = (float)Program.Game.DeltaTime;
+        var deltaTime = (float)Game.DeltaTime;
         var velocity = moveSpeed * deltaTime;
 
-        var keyboardState = Program.Window.KeyboardState;
-        var mouseState = Program.Window.MouseState;
+        var keyboardState = Game.Window.KeyboardState;
+        var mouseState = Game.Window.MouseState;
 
         Query.ForEachEntity((ref Position position, ref Rotation rotation, Entity entity) =>
         {
             // get local movement directions based on current rotation
-            var forward = Vector3.Transform(Program.Game.Forward, rotation.value);
-            var right = Vector3.Transform(Program.Game.Right, rotation.value);
+            var forward = Vector3.Transform(Game.Forward, rotation.value);
+            var right = Vector3.Transform(Game.Right, rotation.value);
 
             // movement (only modifies position)
             if (keyboardState.IsKeyDown(Keys.W))
@@ -51,7 +51,7 @@ public class PlayerFreeCamControllerSystem : QuerySystem<Position, Rotation>
             rotation.value = Quaternion.Normalize(yawRotation * rotation.value);
 
             // update pitch angle and clamp to avoid flipping
-            pitchAngle = Math.Clamp(pitchAngle + pitch, -MathF.PI / 2 + 0.1f, MathF.PI / 2 - 0.1f);
+            _pitchAngle = Math.Clamp(_pitchAngle + pitch, -MathF.PI / 2 + 0.1f, MathF.PI / 2 - 0.1f);
 
             // get new right vector after yaw rotation
             right = Vector3.Transform(Vector3.UnitX, rotation.value);

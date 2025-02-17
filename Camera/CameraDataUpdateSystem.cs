@@ -15,11 +15,14 @@ public class CameraDataUpdateSystem : QuerySystem<LocalToWorld, CameraData>
                 ref readonly var localToWorld = ref localToWorldChunk[n];
                 var worldPosition = localToWorld.Value.Translation;
                 var worldRotation = Quaternion.CreateFromRotationMatrix(localToWorld.Value);
-                var worldFront = Vector3.Normalize(Vector3.Transform(Program.Game.Forward, worldRotation));
+                var worldFront = Vector3.Normalize(Vector3.Transform(Game.Forward, worldRotation));
 
                 ref var cameraData = ref cameraDataChunk[n];
                 cameraData.View = Matrix4x4.CreateLookAtLeftHanded(worldPosition,
-                    worldPosition + worldFront, Program.Game.Up);
+                    worldPosition + worldFront, Game.Up);
+                cameraData.Projection =
+                    Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded(float.DegreesToRadians(cameraData.Fov),
+                        cameraData.AspectRatio, cameraData.NearClip, cameraData.FarClip);
             }
         });
         queryJob.RunParallel();

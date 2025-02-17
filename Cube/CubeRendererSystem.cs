@@ -10,7 +10,7 @@ using Vector3 = System.Numerics.Vector3;
 
 namespace cosmic_thing.Cube;
 
-public class CubeRenderer : QuerySystem<Position, ColorRgb>
+public class CubeRendererSystem : QuerySystem<Position, ColorRgb>
 {
     private static readonly Vector3[] CubeVertices =
     [
@@ -43,7 +43,7 @@ public class CubeRenderer : QuerySystem<Position, ColorRgb>
 
     private int _vertexArrayObject;
 
-    public CubeRenderer()
+    public CubeRendererSystem()
     {
         Filter.AnyTags(Tags.Get<CubeTag>());
     }
@@ -183,7 +183,7 @@ public class CubeRenderer : QuerySystem<Position, ColorRgb>
     {
         ReAllocateInstanceBuffer();
 
-        ref var cameraData = ref Program.Game.MainCameraEntity.GetComponent<CameraData>();
+        ref var cameraData = ref Game.MainCameraEntity.GetComponent<CameraData>();
         var projection = Unsafe.BitCast<Matrix4x4, Matrix4>(cameraData.Projection);
         var view = Unsafe.BitCast<Matrix4x4, Matrix4>(cameraData.View);
 
