@@ -65,7 +65,7 @@ public static class Game
                 FarClip = 1000,
                 AspectRatio = 1 // Updated dynamically later.
             },
-            Tags.Get<FreeCamTag>());
+            new FreeCamData());
 
         SystemRoot.Add(new LocalToWorldFromTrUpdateSystem());
         SystemRoot.Add(new CameraDataUpdateSystem());
