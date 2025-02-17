@@ -2,7 +2,7 @@
 
 **Not finished**
 
-Bigger than visible universe space game like thingy, no loading screens, no tricks, everything star you see is a real one.
+Bigger than visible universe space game like thingy, no loading screens, no tricks, every star you see is a real one.
 
 Made with [Friflo.Engine.ECS](https://github.com/friflo/Friflo.Engine.ECS), OpenGL, and lots of custom systems, using "High-Performance" C# code with minimal GC.
 
