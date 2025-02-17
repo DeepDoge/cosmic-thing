@@ -49,10 +49,10 @@ public struct ShaderProgram : IDisposable
         GL.UseProgram(Id);
     }
 
-    public void SetMatrix4(string name, Matrix4x4 matrix)
+    public void SetUniformMatrix4X4(string name, ref Matrix4x4 matrix)
     {
         EnsureNotDisposed();
-        var matrix4 = Unsafe.BitCast<Matrix4x4, Matrix4>(matrix);
+        ref var matrix4 = ref Unsafe.As<Matrix4x4, Matrix4>(ref matrix);
         var location = GL.GetUniformLocation(Id, name);
         GL.UniformMatrix4(location, false, ref matrix4);
     }
