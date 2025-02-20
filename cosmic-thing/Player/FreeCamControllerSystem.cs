@@ -5,7 +5,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace cosmic_thing.Player;
 
-public class FreeCamControllerSystem : QuerySystem<Position, Rotation, FreeCamData>
+public class FreeCamControllerSystem : QuerySystem<Position, Rotation, FreeCamControllerData>
 {
     protected override void OnUpdate()
     {
@@ -17,7 +17,8 @@ public class FreeCamControllerSystem : QuerySystem<Position, Rotation, FreeCamDa
         var keyboardState = Game.Window.KeyboardState;
         var mouseState = Game.Window.MouseState;
 
-        Query.ForEachEntity((ref Position position, ref Rotation rotation, ref FreeCamData freeCamData, Entity entity) =>
+        Query.ForEachEntity((ref Position position, ref Rotation rotation, ref FreeCamControllerData freeCamData,
+            Entity entity) =>
         {
             // get local movement directions based on current rotation
             var forward = Vector3.Transform(Game.Forward, rotation.value);
@@ -44,7 +45,8 @@ public class FreeCamControllerSystem : QuerySystem<Position, Rotation, FreeCamDa
             rotation.value = Quaternion.Normalize(yawRotation * rotation.value);
 
             // update pitch angle and clamp to avoid flipping
-            freeCamData.PitchAngle = Math.Clamp(freeCamData.PitchAngle + pitch, -MathF.PI / 2 + 0.1f, MathF.PI / 2 - 0.1f);
+            freeCamData.PitchAngle =
+                Math.Clamp(freeCamData.PitchAngle + pitch, -MathF.PI / 2 + 0.1f, MathF.PI / 2 - 0.1f);
 
             // get new right vector after yaw rotation
             right = Vector3.Transform(Vector3.UnitX, rotation.value);

@@ -9,19 +9,14 @@ public readonly struct InstanceDataBuffer<T> where T : struct
 
     private readonly int _attributeLocation;
     private readonly int _bufferId;
-    private readonly int _componentCount;
     private readonly BufferTarget _target;
 
-    public InstanceDataBuffer(int attributeLocation, int componentCount, BufferTarget target = BufferTarget.ArrayBuffer)
+    public InstanceDataBuffer(int attributeLocation, BufferTarget target = BufferTarget.ArrayBuffer)
     {
         _attributeLocation = attributeLocation;
-        _componentCount = componentCount;
         _target = target;
 
         _bufferId = GL.GenBuffer();
-        GL.BindBuffer(target, _bufferId);
-
-        // initial empty buffer, will be resized later
         Resize(0);
     }
 
@@ -46,9 +41,33 @@ public readonly struct InstanceDataBuffer<T> where T : struct
     public void Bind()
     {
         GL.BindBuffer(_target, _bufferId);
-        GL.VertexAttribPointer(_attributeLocation, _componentCount, VertexAttribPointerType.Float, false,
-            _componentCount * sizeof(float), 0);
-        GL.EnableVertexAttribArray(_attributeLocation);
-        GL.VertexAttribDivisor(_attributeLocation, 1);
+        const VertexAttribPointerType componentType = VertexAttribPointerType.Float;
+        var componentSize = Stride / sizeof(float);
+        if (componentSize <= 4)
+        {
+            GL.EnableVertexAttribArray(_attributeLocation);
+            GL.VertexAttribDivisor(_attributeLocation, 1);
+            GL.VertexAttribPointer(_attributeLocation, componentSize, componentType, false, Stride, 0);
+        }
+        else
+        {
+            const int floatsPerVec4 = 4;
+            const int floatSizeInBytes = sizeof(float);
+            var offset = 0;
+            var subLocation = 0;
+
+            for (var remaining = componentSize; remaining > 0; remaining -= floatsPerVec4)
+            {
+                var location = _attributeLocation + subLocation;
+                var subComponentSize = Math.Min(floatsPerVec4, remaining);
+
+                GL.EnableVertexAttribArray(location);
+                GL.VertexAttribDivisor(location, 1);
+                GL.VertexAttribPointer(location, subComponentSize, componentType, false, Stride, offset);
+
+                offset += floatsPerVec4 * floatSizeInBytes;
+                subLocation++;
+            }
+        }
     }
 }

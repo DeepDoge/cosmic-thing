@@ -24,7 +24,7 @@ public static class Game
         ClientSize = (800, 600),
         Title = "Instanced OpenGL + Camera",
         API = ContextAPI.OpenGL,
-        APIVersion = new Version(4, 5),
+        APIVersion = new Version(4, 6),
         Profile = ContextProfile.Core
     });
 
@@ -52,9 +52,8 @@ public static class Game
         GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         GL.Enable(EnableCap.DepthTest);
 
-        World.CreateEntity(new Position(-1.25f, 0, 0), new ColorRgb { Value = { X = 1 } }, Tags.Get<CubeTag>());
-        World.CreateEntity(new Position(0, .25f, 0), new ColorRgb { Value = { Y = 1 } }, Tags.Get<CubeTag>());
-        World.CreateEntity(new Position(1.25f, .5f, 0), new ColorRgb { Value = { Z = 1 } }, Tags.Get<CubeTag>());
+        World.CreateEntity(new Position(1.1f, 1.2f, 1.3f), new Rotation(), new LocalToWorld(),
+            new ColorRgb { Value = { X = 1 } }, Tags.Get<CubeTag>());
 
         MainCameraEntity = World.CreateEntity(new Position { z = -3 }, new Rotation { value = Quaternion.Identity },
             new LocalToWorld(),
@@ -65,9 +64,9 @@ public static class Game
                 FarClip = 1000,
                 AspectRatio = 1 // Updated dynamically later.
             },
-            new FreeCamData());
+            new FreeCamControllerData());
 
-        SystemRoot.Add(new LocalToWorldFromTrUpdateSystem());
+        SystemRoot.Add(new LocalToWorldUpdateSystem());
         SystemRoot.Add(new CameraDataUpdateSystem());
         SystemRoot.Add(new FreeCamControllerSystem());
         SystemRoot.Add(new CubeRendererSystem());
@@ -76,9 +75,6 @@ public static class Game
     private static void RenderFrame(FrameEventArgs frame)
     {
         var deltaTime = frame.Time;
-
-        var fps = 1.0d / deltaTime;
-        Console.WriteLine($"FPS: {fps:F2}");
 
         DeltaTime = deltaTime;
 

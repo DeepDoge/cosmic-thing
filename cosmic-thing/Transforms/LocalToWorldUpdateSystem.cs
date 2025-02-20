@@ -4,7 +4,7 @@ using Friflo.Engine.ECS.Systems;
 
 namespace cosmic_thing.Transforms;
 
-public class LocalToWorldFromTrUpdateSystem : QuerySystem<Position, Rotation, LocalToWorld>
+public class LocalToWorldUpdateSystem : QuerySystem<Position, Rotation, LocalToWorld>
 {
     protected override void OnUpdate()
     {

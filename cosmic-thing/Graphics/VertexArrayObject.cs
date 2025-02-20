@@ -3,40 +3,42 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace cosmic_thing.Graphics;
 
-public readonly struct Mesh
+public readonly struct VertexArrayObject()
 {
-    public readonly uint IndicesLength;
-    private readonly int _vao;
+    private readonly int _id = GL.GenVertexArray();
 
-    public Mesh(Vector3[] vertices, uint[] indices)
+    public static VertexArrayObject FromMesh(int location, Vector3[] vertices, uint[] indices)
     {
-        // generate buffers
-        _vao = GL.GenVertexArray();
+        var vao = new VertexArrayObject();
+
+        Bind(vao);
+
         var vbo = GL.GenBuffer();
         var ebo = GL.GenBuffer();
-        IndicesLength = (uint)indices.Length;
 
-        GL.BindVertexArray(_vao);
-
-        // upload vertex data
         GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
         GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float) * 3, vertices,
             BufferUsageHint.StaticDraw);
 
-        // upload index data
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
         GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices,
             BufferUsageHint.StaticDraw);
 
-        // define vertex layout (position only for now)
-        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, sizeof(float) * 3, 0);
+        GL.VertexAttribPointer(location, 3, VertexAttribPointerType.Float, false, sizeof(float) * 3, 0);
         GL.EnableVertexAttribArray(0);
 
-        GL.BindVertexArray(0); // unbind
+        Unbind();
+
+        return vao;
     }
 
-    public void Bind()
+    public static void Bind(VertexArrayObject vao)
     {
-        GL.BindVertexArray(_vao);
+        GL.BindVertexArray(vao._id);
+    }
+
+    public static void Unbind()
+    {
+        GL.BindVertexArray(0);
     }
 }
