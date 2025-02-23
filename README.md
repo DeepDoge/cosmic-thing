@@ -11,3 +11,7 @@ Keep it stupid simple.
 It’s a remake of:
 - [Unity Space Game Template Prototype/Experiment Project Thingy](https://www.youtube.com/watch?v=cyjfxaAUsTI)  
 - [Experiment Space "Thingy" #Devlog 2 | Unity DOTS](https://www.youtube.com/watch?v=a0wng5QbfKE)  
+
+## When will it finish?
+
+Never.
