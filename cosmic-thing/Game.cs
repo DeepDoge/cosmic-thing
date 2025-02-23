@@ -66,9 +66,11 @@ public static class Game
             },
             new FreeCamControllerData());
 
-        SystemRoot.Add(new LocalToWorldUpdateSystem());
-        SystemRoot.Add(new CameraDataUpdateSystem());
+        // Simulation
         SystemRoot.Add(new FreeCamControllerSystem());
+        SystemRoot.Add(new LocalToWorldUpdateSystem());
+        // Rendering
+        SystemRoot.Add(new CameraDataUpdateSystem());
         SystemRoot.Add(new CubeRendererSystem());
     }
 
