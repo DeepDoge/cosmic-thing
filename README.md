@@ -33,4 +33,4 @@ Supply and demand.
 
 Old mmorpg-ish style combat system.
 
-Maybe multiplay if i dont die first.
+Maybe multiplayer if i dont die first.
