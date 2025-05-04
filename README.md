@@ -24,6 +24,8 @@ Because I wanna.
 
 Universe bigger than visible universe, m&b bannerlord like sandbox gameplay, but no camping map, everything real time real.
 So needs a scalable game ai too.
+Long cozy travels between star systems.
+Doesn't require you to go to space, but if you wanna its there.
 Needs to run on my old laptop from 8 years ago.
 
 Theme: No tech, its magic and fantasy. not gonna get into details that might change.
