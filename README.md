@@ -1,4 +1,4 @@
-# cosmic-thing
+# veywalker
 
 **Not finished yet**
 
@@ -19,3 +19,18 @@ Never.
 ## Why?
 
 Because I wanna.
+
+## Goal
+
+Universe bigger than visible universe, m&b bannerlord like sandbox gameplay, but no camping map, everything real time real.
+So needs a scalable game ai too.
+Needs to run on my old laptop from 8 years ago.
+
+Theme: No tech, its magic and fantasy. not gonna get into details that might change.
+
+Big wars, portals, trading, caravans, cities kindgdoms etc, usual bannerlord stuff.
+Supply and demand.
+
+Old mmorpg-ish style combat system.
+
+Maybe multiplay if i dont die first.
