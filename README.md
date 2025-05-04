@@ -36,3 +36,7 @@ Supply and demand.
 Old mmorpg-ish style combat system.
 
 Maybe multiplayer if i dont die first.
+
+## Star/Continue when?
+
+Probably June 16, 2025
