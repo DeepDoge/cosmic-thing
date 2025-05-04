@@ -28,7 +28,7 @@ Long cozy travels between star systems.\
 Doesn't require you to go to space, but if you wanna its there.\
 Needs to run on my old laptop from 8 years ago.\
 
-Theme: No tech, its magic and fantasy. not gonna get into details that might change.
+Theme: No tech, No punk, its magic and fantasy. not gonna get into details that might change.
 
 Big wars, portals, trading, caravans, cities kindgdoms etc, usual bannerlord stuff.\
 Supply and demand.
